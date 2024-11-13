@@ -11,3 +11,4 @@ spec:
     - ./components/sample-4-component.yaml
     - ./components/sample-4-component.yaml
     - ./components/foo-component.yaml
+    - ./components/november-13-component.yaml
