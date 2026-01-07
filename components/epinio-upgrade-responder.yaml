@@ -2,7 +2,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: epinio
+  name: epinio-upgrade-responder
   description: Epinio upgrade-responder service
   annotations:
     backstage.io/kubernetes-id: epinio-upgrade-responder
