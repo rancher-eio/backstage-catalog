@@ -1,0 +1,14 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: comitiva
+  description: Comitiva service
+  annotations:
+    backstage.io/kubernetes-id: comitiva
+    github.com/project-slug: rancher/comitiva-deployment
+spec:
+  type: service
+  lifecycle: production
+  owner: eio
+  system: applications
