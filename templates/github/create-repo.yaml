@@ -13,7 +13,7 @@ metadata:
         - url: https://github.com/rancher-eio/org/blob/main/.github/workflows/add-repository.yaml
         title: Workflow Source
         icon: github
-    spec:
+spec:
     owner: eio
     type: service
     system: github-management
