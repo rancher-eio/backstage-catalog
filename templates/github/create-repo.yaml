@@ -1,0 +1,132 @@
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+    name: github-create-repo
+    title: Create GitHub Repository
+    description: Create a new GitHub repository (creates PR for EIO team approval)
+    tags:
+        - github
+        - repository
+        - self-service
+    links:
+        - url: https://github.com/rancher-eio/org/blob/main/.github/workflows/add-repository.yaml
+        title: Workflow Source
+        icon: github
+    spec:
+    owner: eio
+    type: service
+    system: github-management
+
+    parameters:
+        - title: Repository Details
+        required:
+            - org
+            - name
+            - visibility
+        properties:
+            org:
+            title: GitHub Org
+            type: string
+            description: Which org should this repo be created in?
+            enum:
+                - rancher
+                - rancherlabs
+                - rancher-eio
+            enumNames:
+                - 'RancherLabs'
+                - 'Rancher'
+                - 'RancherEIO'
+            default: rancher
+            ui:autofocus: true
+
+            name:
+            title: Repository Name
+            type: string
+            description: Name of the repository (without org prefix)
+            pattern: '^[a-z0-9-]+$'
+            ui:help: 'Lowercase letters, numbers, and hyphens only'
+            ui:placeholder: 'my-repo-name'
+
+            visibility:
+            title: Visibility
+            type: string
+            description: Who can see this repository?
+            enum:
+                - private
+                - public
+                - internal
+            enumNames:
+                - 'Private - Only org members with access'
+                - 'Public - Anyone on the internet'
+                - 'Internal - All org members'
+            default: public
+
+        - title: Additional Information (Optional)
+        properties:
+            description:
+            title: Repository Description
+            type: string
+            description: Brief description of what this repo is for
+            ui:widget: textarea
+            ui:options:
+                rows: 3
+
+            justification:
+            title: Why do you need this repo?
+            type: string
+            description: Help the EIO team understand the purpose
+            ui:widget: textarea
+            ui:options:
+                rows: 5
+
+    steps:
+        - id: trigger-workflow
+        name: Trigger Repository Creation Workflow
+        action: github:actions:dispatch
+        input:
+            workflowId: add-repository.yaml
+            repoUrl: github.com?repo=${{ parameters.org }}&owner=${{ parameters.org }}
+            workflowInputs:
+            name: ${{ parameters.name }}
+            visibility: ${{ parameters.visibility }}
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+        - id: wait
+        name: Wait for PR Creation
+        action: debug:wait
+        input:
+            seconds: 5
+
+        - id: get-pr
+        name: Find Created PR
+        action: github:repo:getPullRequests
+        input:
+            repoUrl: github.com?repo=${{ parameters.org }}&owner=${{ parameters.org }}
+            head: Repository/${{ parameters.name }}/${{ parameters.visibility }}
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+    output:
+        links:
+        - title: View Pull Request
+            icon: github
+            url: ${{ steps['get-pr'].output.pullRequests[0].html_url }}
+        - title: Workflow Runs
+            icon: github
+            url: https://github.com/${{ parameters.org }}/${{ parameters.org }}/actions/workflows/add-repository.yml
+        text:
+        - title: Next Steps
+            content: |
+            ## ✅ Repository Creation PR Created!
+
+            Your request to create `${{ parameters.org }}/${{ parameters.name }}` has been submitted.
+
+            **What happens next:**
+            1. The EIO team will review your PR
+            2. Once approved and merged, the repository will be created
+            3. Check the kubernetes status of the component to verify that it was created
+
+            **PR Details:**
+            - Repository: `${{ parameters.org }}/${{ parameters.name }}`
+            - Visibility: `${{ parameters.visibility }}`
+            - Branch: `Repository/${{ parameters.name }}/${{ parameters.visibility }}`
