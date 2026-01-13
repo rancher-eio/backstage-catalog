@@ -1,4 +1,3 @@
----
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
@@ -9,15 +8,10 @@ metadata:
     - github
     - repository
     - self-service
-  links:
-    - url: https://github.com/rancher-eio/org/blob/main/.github/workflows/add-repository.yaml
-      title: Workflow Source
-      icon: github
 spec:
-  owner: eio
+  owner: group:eio
   type: service
   system: github-management
-
   parameters:
     - title: Repository Details
       required:
@@ -34,9 +28,9 @@ spec:
             - rancherlabs
             - rancher-eio
           enumNames:
-            - 'RancherLabs'
-            - 'Rancher'
-            - 'RancherEIO'
+            - Rancher
+            - RancherLabs
+            - Rancher EIO
           default: rancher
           ui:autofocus: true
 
@@ -45,8 +39,7 @@ spec:
           type: string
           description: Name of the repository (without org prefix)
           pattern: '^[a-z0-9-]+$'
-          ui:help: 'Lowercase letters, numbers, and hyphens only'
-          ui:placeholder: 'my-repo-name'
+          ui:help: Lowercase letters, numbers, and hyphens only
 
         visibility:
           title: Visibility
@@ -57,76 +50,37 @@ spec:
             - public
             - internal
           enumNames:
-            - 'Private - Only org members with access'
-            - 'Public - Anyone on the internet'
-            - 'Internal - All org members'
-          default: public
+            - Private
+            - Public
+            - Internal
+          default: private
 
-    - title: Additional Information (Optional)
+    - title: Additional Information
       properties:
-        description:
-          title: Repository Description
-          type: string
-          description: Brief description of what this repo is for
-          ui:widget: textarea
-          ui:options:
-            rows: 3
-
         justification:
           title: Why do you need this repo?
           type: string
-          description: Help the EIO team understand the purpose
           ui:widget: textarea
           ui:options:
-            rows: 5
+            rows: 3
 
   steps:
     - id: trigger-workflow
       name: Trigger Repository Creation Workflow
       action: github:actions:dispatch
       input:
+        repoUrl: github.com?repo=org&owner=${{ parameters.org }}
         workflowId: add-repository.yaml
-        repoUrl: github.com?repo=${{ parameters.org }}&owner=${{ parameters.org }}
+        branchOrTagName: main
         workflowInputs:
           name: ${{ parameters.name }}
           visibility: ${{ parameters.visibility }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-    - id: wait
-      name: Wait for PR Creation
-      action: debug:wait
-      input:
-        seconds: 5
-
-    - id: get-pr
-      name: Find Created PR
-      action: github:repo:getPullRequests
-      input:
-        repoUrl: github.com?repo=${{ parameters.org }}&owner=${{ parameters.org }}
-        head: Repository/${{ parameters.name }}/${{ parameters.visibility }}
-        token: ${{ secrets.GITHUB_TOKEN }}
 
   output:
     links:
-      - title: View Pull Request
+      - title: View Pull Requests
         icon: github
-        url: ${{ steps['get-pr'].output.pullRequests[0].html_url }}
-      - title: Workflow Runs
-        icon: github
-        url: https://github.com/${{ parameters.org }}/${{ parameters.org }}/actions/workflows/add-repository.yml
-    text:
-      - title: Next Steps
-        content: |
-          ## ✅ Repository Creation PR Created!
-
-          Your request to create `${{ parameters.org }}/${{ parameters.name }}` has been submitted.
-
-          **What happens next:**
-          1. The EIO team will review your PR
-          2. Once approved and merged, the repository will be created
-          3. Check the kubernetes status of the component to verify that it was created
-
-          **PR Details:**
-          - Repository: `${{ parameters.org }}/${{ parameters.name }}`
-          - Visibility: `${{ parameters.visibility }}`
-          - Branch: `Repository/${{ parameters.name }}/${{ parameters.visibility }}`
+        url: https://github.com/${{ parameters.org }}/org/pulls
+      - title: View Workflow Runs
+        icon: dashboard
+        url: https://github.com/${{ parameters.org }}/org/actions/workflows/add-repository.yaml
