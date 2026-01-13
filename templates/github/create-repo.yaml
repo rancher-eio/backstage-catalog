@@ -65,6 +65,7 @@ spec:
             rows: 3
 
   steps:
+  steps:
     - id: trigger-workflow
       name: Trigger Repository Creation Workflow
       action: github:actions:dispatch
@@ -72,10 +73,10 @@ spec:
         repoUrl: github.com?repo=org&owner=${{ parameters.org }}
         workflowId: add-repository.yaml
         branchOrTagName: main
+        waitForCompletion: true
         workflowInputs:
           name: ${{ parameters.name }}
           visibility: ${{ parameters.visibility }}
-
   output:
     links:
       - title: View Pull Requests
