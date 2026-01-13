@@ -65,7 +65,6 @@ spec:
             rows: 3
 
   steps:
-  steps:
     - id: trigger-workflow
       name: Trigger Repository Creation Workflow
       action: github:actions:dispatch
@@ -77,11 +76,22 @@ spec:
         workflowInputs:
           name: ${{ parameters.name }}
           visibility: ${{ parameters.visibility }}
+
   output:
+    text:
+      - title: Summary
+        content: |
+          ✅ Repository creation workflow completed successfully!
+
+          A pull request has been created for repository **${{ parameters.name }}** in the **${{ parameters.org }}** organization.
+
+          **Next Steps:**
+          - The PR is awaiting review and approval from the EIO team
+          - Once the PR is merged, your repository will be created automatically
     links:
-      - title: View Pull Requests
+      - title: View Pull Request
         icon: github
-        url: https://github.com/${{ parameters.org }}/org/pulls
-      - title: View Workflow Runs
+        url: https://github.com/${{ parameters.org }}/org/pulls?q=is%3Apr+${{ parameters.name }}
+      - title: View Workflow Run
         icon: dashboard
         url: https://github.com/${{ parameters.org }}/org/actions/workflows/add-repository.yaml
