@@ -1,9 +1,10 @@
+---
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: github-create-repo
+  name: create-repo
   title: Create GitHub Repository
-  description: Create a new GitHub repository (creates PR for EIO team approval)
+  description: Create a new GitHub repository via Crossplane
   tags:
     - github
     - repository
@@ -20,17 +21,10 @@ spec:
         - visibility
       properties:
         org:
-          title: GitHub Org
+          title: GitHub Organization
           type: string
           description: Which org should this repo be created in?
-          enum:
-            - rancher
-            - rancherlabs
-            - rancher-eio
-          enumNames:
-            - Rancher
-            - RancherLabs
-            - Rancher EIO
+          enum: [rancher, rancherlabs, rancher-eio]
           default: rancher
           ui:autofocus: true
 
@@ -45,15 +39,13 @@ spec:
           title: Visibility
           type: string
           description: Who can see this repository?
-          enum:
-            - private
-            - public
-            - internal
-          enumNames:
-            - Private
-            - Public
-            - Internal
+          enum: [private, public, internal]
           default: private
+
+        description:
+          title: Description
+          type: string
+          ui:widget: textarea
 
     - title: Additional Information
       properties:
@@ -65,33 +57,81 @@ spec:
             rows: 3
 
   steps:
+    - id: create-issue
+      name: Creating issue for tracking
+      action: github:issues:create
+      input:
+        repoUrl: github.com?repo=issues&owner=rancher-eio
+        title: 'Create Repository Request: ${{ parameters.org }}/${{ parameters.name }}'
+        body: |
+          ## Create Repository Request
+
+          **Repository:** `${{ parameters.org }}/${{ parameters.name }}`
+          **Organization:** ${{ parameters.org }}
+          **Visibility:** `${{ parameters.visibility }}`
+          **Requested by:** @${{ user.entity.metadata.name }}
+
+          ### Description
+          ${{ parameters.description }}
+
+          ### Justification
+          ${{ parameters.justification }}
+
+          ---
+
+          ## Progress
+
+          - [ ] Pull request created
+          - [ ] EIO team review
+          - [ ] Pull request merged
+          - [ ] Flux sync
+          - [ ] Repository provisioned
+
+          ---
+
+          _This issue will be automatically updated as your request progresses._
+        labels:
+          - backstage-request
+          - github
+          - resolution-automated
+
     - id: trigger-workflow
-      name: Trigger Repository Creation Workflow
+      name: Triggering workflow
       action: github:actions:dispatch
       input:
-        repoUrl: github.com?repo=org&owner=${{ parameters.org }}
+        repoUrl: github.com?repo=org&owner=${{ parameters.org }}  # This is where the workflow lives
         workflowId: add-repository.yaml
         branchOrTagName: main
-        waitForCompletion: true
         workflowInputs:
           name: ${{ parameters.name }}
+          org: ${{ parameters.org }}
           visibility: ${{ parameters.visibility }}
+          description: ${{ parameters.description }}
+          justification: ${{ parameters.justification }}
+          requestedBy: ${{ user.entity.metadata.name }}
+          issueNumber: ${{ steps['create-issue'].output.issueNumber }}
+          issueRepo: rancher-eio/issues
 
   output:
     text:
-      - title: Summary
+      - title: Repository Request Submitted!
         content: |
-          ✅ Repository creation workflow completed successfully!
+          ✅ **Request Created**
 
-          A pull request has been created for repository **${{ parameters.name }}** in the **${{ parameters.org }}** organization.
+          Your repository request for `${{ parameters.org }}/${{ parameters.name }}` is being processed.
 
-          **Next Steps:**
-          - The PR is awaiting review and approval from the EIO team
-          - Once the PR is merged, your repository will be created automatically
+          **You'll receive GitHub notifications at each stage:**
+          1. PR created (~2 min)
+          2. EIO team review (1-3 days)
+          3. Repository ready (~5 min after merge)
+
+          All updates will be posted to the tracking issue below.
+
     links:
-      - title: View Pull Request
-        icon: github
-        url: https://github.com/${{ parameters.org }}/org/pulls?q=is%3Apr+${{ parameters.name }}
-      - title: View Workflow Run
+      - title: View Workflow
         icon: dashboard
         url: https://github.com/${{ parameters.org }}/org/actions/workflows/add-repository.yaml
+
+      - title: Track Request
+        icon: github
+        url: ${{ steps['create-issue'].output.issueUrl }}
