@@ -2,13 +2,13 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: epinio-upgrade-responder
-  description: Epinio upgrade-responder service
+  name: desktop-upgrade-responder
+  description: Desktop upgrade-responder service
   annotations:
-    backstage.io/kubernetes-id: epinio-upgrade-responder
+    backstage.io/kubernetes-id: desktop-upgrade-responder
     github.com/project-slug: rancher/upgrade-responders
 spec:
   type: service
   lifecycle: development
-  owner: epinio
+  owner: rancher-desktop
   system: applications

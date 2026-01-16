@@ -2,13 +2,13 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: epinio-upgrade-responder
-  description: Epinio upgrade-responder service
+  name: longhorn-upgrade-responder
+  description: Longhorn upgrade-responder service
   annotations:
-    backstage.io/kubernetes-id: epinio-upgrade-responder
+    backstage.io/kubernetes-id: longhorn-upgrade-responder
     github.com/project-slug: rancher/upgrade-responders
 spec:
   type: service
   lifecycle: development
-  owner: epinio
+  owner: longhorn
   system: applications
