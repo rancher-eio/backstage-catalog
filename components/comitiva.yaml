@@ -9,6 +9,6 @@ metadata:
     github.com/project-slug: rancher/comitiva-deployment
 spec:
   type: service
-  lifecycle: production
+  lifecycle: development
   owner: release-team
   system: applications

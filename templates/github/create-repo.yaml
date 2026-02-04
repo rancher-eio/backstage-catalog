@@ -109,7 +109,7 @@ spec:
           description: ${{ parameters.description }}
           justification: ${{ parameters.justification }}
           requestedBy: ${{ user.entity.metadata.name }}
-          issueNumber: ${{ steps['create-issue'].output.issueNumber }}
+          issueNumber: ${{ steps['create-issue'].output.issueNumber | string }}
           issueRepo: rancher-eio/issues
 
   output:
