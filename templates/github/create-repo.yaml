@@ -99,7 +99,7 @@ spec:
       name: Triggering workflow
       action: github:actions:dispatch
       input:
-        repoUrl: github.com?repo=org&owner=${{ parameters.org }}  # This is where the workflow lives
+        repoUrl: github.com?repo=testing&owner=${{ parameters.org }}  # This is where the workflow lives
         workflowId: add-repository.yaml
         branchOrTagName: main
         workflowInputs:
@@ -130,7 +130,7 @@ spec:
     links:
       - title: View Workflow
         icon: dashboard
-        url: https://github.com/${{ parameters.org }}/org/actions/workflows/add-repository.yaml
+        url: https://github.com/testing/org/actions/workflows/add-repository.yaml
 
       - title: Track Request
         icon: github
