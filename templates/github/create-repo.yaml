@@ -62,6 +62,7 @@ spec:
       action: github:issues:create
       input:
         repoUrl: github.com?repo=issues&owner=rancher-eio
+        # repoUrl: github.com?repo=eio&owner=rancherlabs
         title: 'Create Repository Request: ${{ parameters.org }}/${{ parameters.name }}'
         body: |
           ## Create Repository Request
@@ -99,7 +100,8 @@ spec:
       name: Triggering workflow
       action: github:actions:dispatch
       input:
-        repoUrl: github.com?repo=testing&owner=${{ parameters.org }}  # This is where the workflow lives
+        repoUrl: github.com?repo=testing&owner=rancher
+        # repoUrl: github.com?repo=org&owner=${{ parameters.org }}
         workflowId: add-repository.yaml
         branchOrTagName: main
         workflowInputs:
@@ -111,6 +113,7 @@ spec:
           requestedBy: ${{ user.entity.metadata.name }}
           issueNumber: ${{ steps['create-issue'].output.issueNumber | string }}
           issueRepo: rancher-eio/issues
+          # issueRepo: rancherlabs/eio
 
   output:
     text:
@@ -130,7 +133,8 @@ spec:
     links:
       - title: View Workflow
         icon: dashboard
-        url: https://github.com/testing/org/actions/workflows/add-repository.yaml
+        url: https://github.com/rancher/testing/actions/workflows/add-repository.yaml
+        # url: https://github.com/${{ parameters.org }}/org/actions/workflows/add-repository.yaml
 
       - title: Track Request
         icon: github
