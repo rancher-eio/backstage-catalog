@@ -7,5 +7,6 @@ metadata:
 spec:
   targets:
     - ./components/*.yaml
-    - ./templates/github/*.yaml
     - ./systems/*.yaml
+    - ./templates/github/*.yaml
+    - ./templates/secrets/*.yaml
